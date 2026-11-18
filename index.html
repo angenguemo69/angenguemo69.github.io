@@ -14,6 +14,9 @@ input{padding:10px;width:60%;font-size:16px}
 button{padding:10px 14px;font-size:16px;background:#1f3a5f;color:#fff;border:0;border-radius:6px}
 li{margin:8px 0;cursor:pointer}
 li.done{text-decoration:line-through;color:#888}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}
+td input{width:70px;padding:6px}
 </style>
 </head>
 <body>
@@ -48,10 +51,19 @@ Anwendungsentwicklung / Daten- und Prozessanalyse</p>
 </section>
 
 <section>
+<h2>Projekt 2: Datenanalyse</h2>
+<p>Beispieldaten: Lernstunden pro Tag. Werte ändern, dann berechnen sich Summe, Durchschnitt und Diagramm automatisch neu.</p>
+<table id="tabelle"></table>
+<p id="ergebnis"></p>
+<canvas id="diagramm"></canvas>
+</section>
+
+<section>
 <h2>Kontakt</h2>
 <p>E-Mail: <a href="mailto:angenguemo69@gmail.com">angenguemo69@gmail.com</a></p>
 </section>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 function hinzufuegen(){
   var feld = document.getElementById("eingabe");
@@ -64,6 +76,41 @@ function hinzufuegen(){
   document.getElementById("liste").appendChild(punkt);
   feld.value = "";
 }
+
+var tage = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+var stunden = [2, 1.5, 3, 2, 1, 4, 2.5];
+
+function tabelleBauen(){
+  var html = "<tr><th>Tag</th><th>Stunden</th></tr>";
+  for(var i = 0; i < tage.length; i++){
+    html += "<tr><td>" + tage[i] + "</td><td><input type='number' step='0.5' min='0' value='" + stunden[i] + "' onchange='aendern(" + i + ", this.value)'></td></tr>";
+  }
+  document.getElementById("tabelle").innerHTML = html;
+}
+
+function aendern(i, wert){
+  stunden[i] = parseFloat(wert) || 0;
+  berechnen();
+}
+
+function berechnen(){
+  var summe = 0;
+  for(var i = 0; i < stunden.length; i++){
+    summe += stunden[i];
+  }
+  var schnitt = summe / stunden.length;
+  document.getElementById("ergebnis").textContent = "Summe: " + summe + " Std. / Durchschnitt: " + schnitt.toFixed(1) + " Std. pro Tag";
+  diagramm.data.datasets[0].data = stunden;
+  diagramm.update();
+}
+
+tabelleBauen();
+var diagramm = new Chart(document.getElementById("diagramm"), {
+  type: "bar",
+  data: { labels: tage, datasets: [{ label: "Stunden", data: stunden, backgroundColor: "#1f3a5f" }] },
+  options: { scales: { y: { beginAtZero: true } } }
+});
+berechnen();
 </script>
 
 </body>
